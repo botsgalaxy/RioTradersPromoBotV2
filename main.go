@@ -15,7 +15,8 @@ func init() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
+	dsn := os.Getenv("DSN")
+	migrateDatabase(dsn)
 }
 
 func main() {
@@ -42,7 +43,7 @@ func main() {
 	registerHandlers(dispatcher)
 
 	err = updater.StartPolling(b, &ext.PollingOpts{
-		DropPendingUpdates: true,
+		DropPendingUpdates: false,
 		GetUpdatesOpts: &gotgbot.GetUpdatesOpts{
 			Timeout: 9,
 			RequestOpts: &gotgbot.RequestOpts{

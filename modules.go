@@ -36,11 +36,11 @@ func registerHandlers(d *ext.Dispatcher) {
 	d.AddHandler(handlers.NewCommand("start", start))
 	d.AddHandler(handlers.NewCommand("support", support))
 	d.AddHandler(handlers.NewCommand("freesignals", freesignals))
-
 	d.AddHandler(handlers.NewMessage(message.Text, messageResponse))
 }
 
 func start(b *gotgbot.Bot, ctx *ext.Context) error {
+
 	user := ctx.EffectiveUser
 	chatId := ctx.EffectiveChat.Id
 	b.SendMessage(chatId, fmt.Sprintf("Hey, <b>%s</b>", user.FirstName), &gotgbot.SendMessageOpts{
@@ -51,6 +51,15 @@ func start(b *gotgbot.Bot, ctx *ext.Context) error {
 	_, err := b.SendMessage(chatId, startText, &gotgbot.SendMessageOpts{
 		ParseMode:   "html",
 		ReplyMarkup: startInlineButton,
+	})
+
+	DB.Create(&PromoBotUser{
+		UserId:       user.Id,
+		FirstName:    user.FirstName,
+		LastName:     user.LastName,
+		Username:     user.Username,
+		IsPremium:    user.IsPremium,
+		LanguageCode: user.LanguageCode,
 	})
 	return err
 
