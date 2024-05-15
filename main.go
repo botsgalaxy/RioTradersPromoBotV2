@@ -16,7 +16,7 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 	dsn := os.Getenv("DSN")
-	migrateDatabase(dsn)
+	go migrateDatabase(dsn)
 }
 
 func main() {

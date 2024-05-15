@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
@@ -36,6 +38,7 @@ func registerHandlers(d *ext.Dispatcher) {
 	d.AddHandler(handlers.NewCommand("start", start))
 	d.AddHandler(handlers.NewCommand("support", support))
 	d.AddHandler(handlers.NewCommand("freesignals", freesignals))
+	d.AddHandler(handlers.NewCommand("broadcast", broadcast))
 	d.AddHandler(handlers.NewMessage(message.Text, messageResponse))
 }
 
@@ -138,4 +141,42 @@ func freesignals(b *gotgbot.Bot, ctx *ext.Context) error {
 	})
 	return err
 
+}
+
+func broadcast(b *gotgbot.Bot, ctx *ext.Context) error {
+	user := ctx.EffectiveUser
+	if user.Username == "RioVivek" || user.Username == "RioSuleman" || user.Username == "RioTradersSupport" {
+		if ctx.EffectiveMessage.ReplyToMessage != nil {
+			var botUsers []PromoBotUser
+			result := DB.Find(&botUsers)
+			if result.Error != nil {
+				return result.Error
+			}
+			for _, botUser := range botUsers {
+				_, err := ctx.EffectiveMessage.ReplyToMessage.Forward(
+					b,
+					botUser.UserId,
+					&gotgbot.ForwardMessageOpts{},
+				)
+				log.Println(err)
+				time.Sleep(time.Second * 3)
+			}
+
+		} else {
+			ctx.EffectiveMessage.Reply(
+				b,
+				"You have to reply to a message to broadcast!!!",
+				&gotgbot.SendMessageOpts{},
+			)
+		}
+
+	} else {
+		ctx.EffectiveMessage.Reply(
+			b,
+			"You are not authorized to broadcast!!!",
+			&gotgbot.SendMessageOpts{},
+		)
+	}
+
+	return nil
 }
