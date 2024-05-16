@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -152,14 +151,25 @@ func broadcast(b *gotgbot.Bot, ctx *ext.Context) error {
 			if result.Error != nil {
 				return result.Error
 			}
+			counter := "🟢 Broadcast Started\n\n✅ Successful: %d \n❌ Failed: %d"
+			msg, _ := b.SendMessage(user.Id, fmt.Sprintf(counter, 0, 0), nil)
+			success := 0
+			failed := 0
+
 			for _, botUser := range botUsers {
 				_, err := ctx.EffectiveMessage.ReplyToMessage.Forward(
 					b,
 					botUser.UserId,
 					&gotgbot.ForwardMessageOpts{},
 				)
-				log.Println(err)
+				if err != nil {
+					failed++
+				} else {
+					success++
+				}
+
 				time.Sleep(time.Second * 3)
+				msg.EditText(b, fmt.Sprintf(counter, success, failed), nil)
 			}
 
 		} else {
