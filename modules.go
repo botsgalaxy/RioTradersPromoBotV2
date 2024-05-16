@@ -144,7 +144,7 @@ func freesignals(b *gotgbot.Bot, ctx *ext.Context) error {
 
 func broadcast(b *gotgbot.Bot, ctx *ext.Context) error {
 	user := ctx.EffectiveUser
-	if user.Username == "RioVivek" || user.Username == "RioSuleman" || user.Username == "RioTradersSupport" {
+	if validateAdmin(user.Username) {
 		if ctx.EffectiveMessage.ReplyToMessage != nil {
 			var botUsers []PromoBotUser
 			result := DB.Find(&botUsers)
@@ -189,4 +189,13 @@ func broadcast(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	return nil
+}
+
+func validateAdmin(username string) bool {
+	for _, adminUsername := range ADMIN_USERNAMES {
+		if username == adminUsername {
+			return true
+		}
+	}
+	return false
 }

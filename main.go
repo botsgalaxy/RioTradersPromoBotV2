@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -10,12 +11,16 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var ADMIN_USERNAMES []string
+
 func init() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 	dsn := os.Getenv("DSN")
+	admins := os.Getenv("ADMIN_USERNAMES")
+	ADMIN_USERNAMES = strings.Split(admins, ",")
 	go migrateDatabase(dsn)
 }
 
