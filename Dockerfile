@@ -1,9 +1,24 @@
-FROM alpine:latest 
+FROM golang:alpine AS builder
 
-WORKDIR /usr/src/app 
+WORKDIR /go/src/app
 
-COPY . /usr/src/app/
+COPY go.mod go.sum ./
 
-RUN chmod +x RioTradersPromoBot
+RUN go mod download
 
-CMD [ "./RioTradersPromoBot" ]
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+
+
+FROM alpine:latest
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /go/src/app/app .
+
+COPY .env .
+
+RUN chmod +x ./app
+
+CMD ["./app"]
